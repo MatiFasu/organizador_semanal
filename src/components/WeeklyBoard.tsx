@@ -1,5 +1,6 @@
 import React from 'react';
 import { DayColumn } from './DayColumn';
+import { NextActivity } from './NextActivity';
 import { useCourseData } from '../hooks/useCourseData';
 import { DAYS_OF_WEEK } from '../types';
 
@@ -34,6 +35,8 @@ export const WeeklyBoard: React.FC = () => {
         <h1>Mi Semana</h1>
         <p>Tu cronograma automático con acceso a todos tus recursos.</p>
       </header>
+
+      <NextActivity />
 
       <div className="weekly-board-container">
         <div className="weekly-board">
