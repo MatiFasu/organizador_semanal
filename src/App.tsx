@@ -9,9 +9,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [error, setError] = useState(false);
-
-  // Reemplaza esto con tu contraseña deseada
-  const APP_PASSWORD = '123'; 
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const authStatus = localStorage.getItem('app_authenticated');
@@ -20,14 +18,29 @@ function App() {
     }
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordInput === APP_PASSWORD) {
-      setIsAuthenticated(true);
-      setError(false);
-      localStorage.setItem('app_authenticated', 'true');
-    } else {
+    setLoading(true);
+    setError(false);
+
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: passwordInput }),
+      });
+
+      if (response.ok) {
+        setIsAuthenticated(true);
+        localStorage.setItem('app_authenticated', 'true');
+      } else {
+        setError(true);
+      }
+    } catch (err) {
+      console.error('Login error:', err);
       setError(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,7 +60,7 @@ function App() {
           borderRadius: '0.5rem',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
           width: '100%',
-          maxSize: '400px',
+          maxWidth: '400px',
           textAlign: 'center'
         }}>
           <h2 style={{ marginBottom: '1.5rem', color: '#111827' }}>Weekly Flow</h2>
@@ -57,6 +70,7 @@ function App() {
             value={passwordInput}
             onChange={(e) => setPasswordInput(e.target.value)}
             placeholder="Contraseña"
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.75rem',
@@ -69,18 +83,19 @@ function App() {
           {error && <p style={{ color: '#ef4444', fontSize: '0.875rem', marginBottom: '1rem' }}>Contraseña incorrecta</p>}
           <button
             type="submit"
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.75rem',
-              backgroundColor: '#3b82f6',
+              backgroundColor: loading ? '#93c5fd' : '#3b82f6',
               color: 'white',
               border: 'none',
               borderRadius: '0.375rem',
-              cursor: 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
               fontWeight: '600'
             }}
           >
-            Entrar
+            {loading ? 'Verificando...' : 'Entrar'}
           </button>
         </form>
       </div>

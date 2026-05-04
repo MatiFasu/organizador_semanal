@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
 import { pool } from './db.ts';
 import { initDb } from './init.ts';
 
@@ -16,6 +17,19 @@ const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+
+// Auth endpoint
+app.post('/api/login', (req, res) => {
+  const { password } = req.body;
+  const hash = crypto.createHash('sha256').update(password).digest('hex');
+  const expectedHash = process.env.APP_PASSWORD_HASH || 'd38b184e7e6cb61f2a43e65c1e534afe565d15763cedf9fdd1088d4a65df9c60';
+
+  if (hash === expectedHash) {
+    res.json({ success: true });
+  } else {
+    res.status(401).json({ success: false, message: 'Invalid password' });
+  }
+});
 
 // Get all courses with their relations
 app.get('/api/courses', async (req, res) => {
