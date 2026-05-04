@@ -11,14 +11,24 @@ export type CourseResource = {
   url: string;
 };
 
+export type CourseTask = {
+  id: string;
+  title: string;
+  completed: boolean;
+};
+
 export type Course = {
   id: string;
   title: string;
+  category: string;
   description?: string;
   color?: string;
   schedules: CourseSchedule[];
   resources: CourseResource[];
+  tasks: CourseTask[];
 };
+
+export const DEFAULT_CATEGORIES = ["Facultad", "Extras", "Otros"];
 
 export const DAYS_OF_WEEK = [
   "Lunes",

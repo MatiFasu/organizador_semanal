@@ -1,19 +1,37 @@
 :root {
+  /* Light Theme Variables */
   --primary: #3b82f6;
   --primary-hover: #2563eb;
   --bg-main: #f8fafc;
+  --bg-sidebar: #1e293b;
   --bg-card: #ffffff;
+  --bg-secondary: #f1f5f9;
   --text-main: #1e293b;
   --text-muted: #64748b;
+  --text-on-sidebar: #94a3b8;
   --border: #e2e8f0;
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+[data-theme='dark'] {
+  --bg-main: #0f172a;
+  --bg-sidebar: #020617;
+  --bg-card: #1e293b;
+  --bg-secondary: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-on-sidebar: #64748b;
+  --border: #334155;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -2px rgb(0 0 0 / 0.4);
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 body {
@@ -33,6 +51,19 @@ button {
   border: none;
   background: none;
   font-family: inherit;
+  color: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-color: var(--primary);
 }
 
 .container {

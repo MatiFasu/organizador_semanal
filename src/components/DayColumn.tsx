@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDroppable } from '@dnd-kit/core';
 import { ActivityCard } from './ActivityCard';
 
 interface DayColumnProps {
@@ -7,8 +8,15 @@ interface DayColumnProps {
 }
 
 export const DayColumn: React.FC<DayColumnProps> = ({ dayName, activities }) => {
+  const { isOver, setNodeRef } = useDroppable({
+    id: dayName,
+  });
+
   return (
-    <div className="day-column">
+    <div 
+      ref={setNodeRef}
+      className={`day-column ${isOver ? 'drop-over' : ''}`}
+    >
       <div className="day-header">
         <h2 className="day-name">{dayName}</h2>
         <span className="activity-count">{activities.length}</span>
@@ -21,7 +29,7 @@ export const DayColumn: React.FC<DayColumnProps> = ({ dayName, activities }) => 
             activity={activity}
           />
         ))}
-        {activities.length === 0 && (
+        {activities.length === 0 && !isOver && (
           <p className="no-activities">Libre</p>
         )}
       </div>
@@ -30,11 +38,17 @@ export const DayColumn: React.FC<DayColumnProps> = ({ dayName, activities }) => 
         .day-column {
           display: flex;
           flex-direction: column;
-          background: #fdfdfd;
+          background: var(--bg-card);
           border-right: 1px solid var(--border);
-          min-width: 200px;
+          min-width: 220px;
           flex: 1;
           padding: 16px;
+          transition: background-color 0.2s ease;
+        }
+
+        .day-column.drop-over {
+          background-color: var(--bg-secondary);
+          border-right: 1px dashed var(--primary);
         }
 
         .day-column:last-child {
@@ -67,11 +81,12 @@ export const DayColumn: React.FC<DayColumnProps> = ({ dayName, activities }) => 
 
         .activities-list {
           flex: 1;
+          min-height: 100px;
         }
 
         .no-activities {
           text-align: center;
-          color: #cbd5e1;
+          color: var(--text-muted);
           font-size: 0.875rem;
           margin-top: 1rem;
           font-style: italic;
