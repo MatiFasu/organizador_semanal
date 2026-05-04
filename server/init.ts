@@ -16,6 +16,21 @@ export const initDb = async () => {
         phone_number TEXT
       );
 
+      -- Migration: Ensure new columns exist in case the table was created before
+      DO $$ 
+      BEGIN 
+        BEGIN
+          ALTER TABLE courses ADD COLUMN notifications_enabled BOOLEAN DEFAULT FALSE;
+        EXCEPTION
+          WHEN duplicate_column THEN null;
+        END;
+        BEGIN
+          ALTER TABLE courses ADD COLUMN phone_number TEXT;
+        EXCEPTION
+          WHEN duplicate_column THEN null;
+        END;
+      END $$;
+
       CREATE TABLE IF NOT EXISTS schedules (
         id UUID PRIMARY KEY,
         course_id UUID REFERENCES courses(id) ON DELETE CASCADE,
