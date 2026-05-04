@@ -42,11 +42,11 @@ app.get('/api/courses', async (req, res) => {
 
 // Add a new course
 app.post('/api/courses', async (req, res) => {
-  const { id, title, category, description, color } = req.body;
+  const { id, title, category, description, color, notificationsEnabled, phoneNumber } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO courses (id, title, category, description, color) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [id, title, category, description, color]
+      'INSERT INTO courses (id, title, category, description, color, notifications_enabled, phone_number) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [id, title, category, description, color, notificationsEnabled || false, phoneNumber]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -59,14 +59,31 @@ app.post('/api/courses', async (req, res) => {
 app.patch('/api/courses/:id', async (req, res) => {
   const { id } = req.params;
   const fields = req.body;
-  const setClause = Object.keys(fields)
-    .map((key, index) => `${key} = $${index + 2}`)
-    .join(', ');
-  const values = Object.values(fields);
+  
+  const columnMapping: Record<string, string> = {
+    title: 'title',
+    category: 'category',
+    description: 'description',
+    color: 'color',
+    notificationsEnabled: 'notifications_enabled',
+    phoneNumber: 'phone_number'
+  };
+
+  const updates = Object.entries(fields)
+    .filter(([key]) => columnMapping[key])
+    .map(([key], index) => `${columnMapping[key]} = $${index + 2}`);
+  
+  const values = Object.entries(fields)
+    .filter(([key]) => columnMapping[key])
+    .map(([_, value]) => value);
+
+  if (updates.length === 0) {
+    return res.status(400).json({ error: 'No valid fields provided' });
+  }
 
   try {
     const result = await pool.query(
-      `UPDATE courses SET ${setClause} WHERE id = $1 RETURNING *`,
+      `UPDATE courses SET ${updates.join(', ')} WHERE id = $1 RETURNING *`,
       [id, ...values]
     );
     res.json(result.rows[0]);

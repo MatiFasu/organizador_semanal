@@ -11,7 +11,9 @@ const initDb = async () => {
         title TEXT NOT NULL,
         category TEXT NOT NULL,
         description TEXT,
-        color TEXT
+        color TEXT,
+        notifications_enabled BOOLEAN DEFAULT FALSE,
+        phone_number TEXT
       );
 
       CREATE TABLE IF NOT EXISTS schedules (

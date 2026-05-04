@@ -21,6 +21,8 @@ export const useCourseData = () => {
             const mappedData = data.map((c: any) => ({
               ...c,
               category: c.category || DEFAULT_CATEGORIES[0],
+              notificationsEnabled: c.notifications_enabled,
+              phoneNumber: c.phone_number,
               schedules: Array.isArray(c.schedules) ? c.schedules.map((s: any) => ({
                   ...s,
                   dayOfWeek: s.day_of_week || s.dayOfWeek,

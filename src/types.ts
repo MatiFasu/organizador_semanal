@@ -23,6 +23,8 @@ export type Course = {
   category: string;
   description?: string;
   color?: string;
+  notificationsEnabled?: boolean;
+  phoneNumber?: string;
   schedules: CourseSchedule[];
   resources: CourseResource[];
   tasks: CourseTask[];
