@@ -51,8 +51,11 @@ app.post('/api/courses', async (req, res) => {
     );
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Error in POST /api/courses:', err);
+    res.status(500).json({ 
+        error: 'Server error', 
+        details: err instanceof Error ? err.message : 'Unknown error' 
+    });
   }
 });
 
