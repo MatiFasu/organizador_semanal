@@ -1,9 +1,9 @@
 import { pool } from './db.ts';
 
-const initDb = async () => {
+export const initDb = async () => {
   const client = await pool.connect();
   try {
-    console.log('Initializing database tables...');
+    console.log('Checking/Initializing database tables...');
     
     await client.query(`
       CREATE TABLE IF NOT EXISTS courses (
@@ -39,13 +39,15 @@ const initDb = async () => {
       );
     `);
     
-    console.log('Database tables initialized successfully.');
+    console.log('Database tables ready.');
   } catch (err) {
     console.error('Error initializing database:', err);
   } finally {
     client.release();
-    process.exit();
   }
 };
 
-initDb();
+// If running directly as a script
+if (import.meta.url === `file://${process.argv[1]}`) {
+    initDb().then(() => process.exit());
+}
