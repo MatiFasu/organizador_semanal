@@ -1,7 +1,8 @@
 import React from 'react';
 import { DayColumn } from './DayColumn';
 import { useCourseData } from '../hooks/useCourseData';
-import { DAYS_OF_WEEK, DEFAULT_CATEGORIES } from '../types';
+import { DAYS_OF_WEEK } from '../types';
+import type { Activity } from '../types';
 import { DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 
@@ -9,7 +10,17 @@ export const WeeklyBoard: React.FC = () => {
   const { courses, moveSchedule, loading } = useCourseData();
   const [selectedCategory, setSelectedCategory] = React.useState<string>('Todas');
 
-  const categories = React.useMemo(() => ['Todas', ...DEFAULT_CATEGORIES], []);
+  const categories = React.useMemo(() => {
+    const set = new Set<string>();
+    courses.forEach((c) => {
+      const cat = c.category?.trim();
+      if (cat) set.add(cat);
+    });
+    const unique = Array.from(set).sort((a, b) => a.localeCompare(b));
+    return ['Todas', ...unique];
+  }, [courses]);
+
+  const activeCategory = categories.includes(selectedCategory) ? selectedCategory : 'Todas';
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -23,12 +34,12 @@ export const WeeklyBoard: React.FC = () => {
     return <div className="loading">Cargando cronograma...</div>;
   }
 
-  const getActivitiesForDay = (dayName: string) => {
-    const activities: any[] = [];
+  const getActivitiesForDay = (dayName: string): Activity[] => {
+    const activities: Activity[] = [];
     
-    const filteredCourses = selectedCategory === 'Todas' 
+    const filteredCourses = activeCategory === 'Todas' 
       ? courses 
-      : courses.filter(c => c.category === selectedCategory);
+      : courses.filter(c => c.category === activeCategory);
     
     filteredCourses.forEach(course => {
       course.schedules.forEach(schedule => {
@@ -70,7 +81,8 @@ export const WeeklyBoard: React.FC = () => {
         {categories.map(cat => (
           <button 
             key={cat} 
-            className={`tab ${selectedCategory === cat ? 'active' : ''}`}
+            type="button"
+            className={`tab ${activeCategory === cat ? 'active' : ''}`}
             onClick={() => setSelectedCategory(cat)}
           >
             {cat}

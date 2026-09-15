@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { BookOpen, Calendar, Layout as LayoutIcon, Sun, Moon } from 'lucide-react';
 
 export const Layout: React.FC = () => {
@@ -13,7 +13,7 @@ export const Layout: React.FC = () => {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
 
   return (
@@ -24,24 +24,36 @@ export const Layout: React.FC = () => {
             <LayoutIcon className="logo-icon" size={24} />
             <span>Weekly Flow</span>
           </div>
-          
+
           <ul className="nav-links">
             <li>
-              <Link to="/">
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) => (isActive ? 'active' : '')}
+              >
                 <BookOpen size={20} />
                 <span>Mis Cursos</span>
-              </Link>
+              </NavLink>
             </li>
             <li>
-              <Link to="/schedule">
+              <NavLink
+                to="/schedule"
+                className={({ isActive }) => (isActive ? 'active' : '')}
+              >
                 <Calendar size={20} />
                 <span>Mi Semana</span>
-              </Link>
+              </NavLink>
             </li>
           </ul>
         </div>
 
-        <button className="theme-toggle" onClick={toggleTheme} title="Cambiar tema">
+        <button
+          type="button"
+          className="theme-toggle"
+          onClick={toggleTheme}
+          title={theme === 'light' ? 'Activar Modo Oscuro' : 'Activar Modo Claro'}
+        >
           {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
           <span>{theme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}</span>
         </button>
@@ -94,16 +106,23 @@ export const Layout: React.FC = () => {
           display: flex;
           align-items: center;
           gap: 12px;
-          padding: 12px;
-          border-radius: 8px;
+          padding: 12px 14px;
+          border-radius: 10px;
           color: var(--text-on-sidebar);
           transition: all 0.2s;
           text-decoration: none;
+          font-weight: 600;
         }
 
         .nav-links a:hover {
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(255, 255, 255, 0.08);
           color: white;
+        }
+
+        .nav-links a.active {
+          background: var(--primary);
+          color: white;
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
         }
 
         .theme-toggle {
@@ -111,15 +130,17 @@ export const Layout: React.FC = () => {
           align-items: center;
           gap: 12px;
           padding: 12px;
-          border-radius: 8px;
+          border-radius: 10px;
           color: var(--text-on-sidebar);
           width: 100%;
           transition: all 0.2s;
           margin-top: auto;
+          cursor: pointer;
+          font-weight: 600;
         }
 
         .theme-toggle:hover {
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(255, 255, 255, 0.08);
           color: white;
         }
 
@@ -152,7 +173,7 @@ export const Layout: React.FC = () => {
           }
           .nav-links {
             flex-direction: row;
-            gap: 1rem;
+            gap: 0.5rem;
             margin-bottom: 0;
           }
           .sidebar-logo {

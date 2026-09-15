@@ -1,10 +1,11 @@
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { ActivityCard } from './ActivityCard';
+import type { Activity } from '../types';
 
 interface DayColumnProps {
   dayName: string;
-  activities: any[];
+  activities: Activity[];
 }
 
 export const DayColumn: React.FC<DayColumnProps> = ({ dayName, activities }) => {

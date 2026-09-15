@@ -1,0 +1,125 @@
+[
+  {
+    "id": "e4b2d187-5f72-4d2c-8822-6b94191c9811",
+    "title": "Algoritmos y Estructuras de Datos",
+    "category": "Facultad",
+    "description": "Materia enfocada en análisis de algoritmos, complejidad asintótica y árboles.",
+    "color": "#3b82f6",
+    "notificationsEnabled": true,
+    "phoneNumber": "+5491122334455",
+    "schedules": [
+      {
+        "id": "11111111-1111-4111-8111-111111111111",
+        "dayOfWeek": "Lunes",
+        "startTime": "09:00",
+        "endTime": "12:00"
+      },
+      {
+        "id": "22222222-2222-4222-8222-222222222222",
+        "dayOfWeek": "Miércoles",
+        "startTime": "14:00",
+        "endTime": "17:00"
+      }
+    ],
+    "resources": [
+      {
+        "id": "33333333-3333-4333-8333-333333333333",
+        "name": "Campus Virtual",
+        "url": "https://campus.universidad.edu.ar"
+      },
+      {
+        "id": "44444444-4444-4444-8444-444444444444",
+        "name": "Guía de Ejercicios y TPs",
+        "url": "https://github.com/ayed/guias"
+      }
+    ],
+    "tasks": [
+      {
+        "id": "55555555-5555-4555-8555-555555555555",
+        "title": "Resolver guía de árboles binarios",
+        "completed": true
+      },
+      {
+        "id": "66666666-6666-4666-8666-666666666666",
+        "title": "Entregar TP de Grafos y Dijkstra",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "f5c3e298-6a83-4e3d-9933-7c05202d0922",
+    "title": "Desarrollo Web Fullstack (React + Node)",
+    "category": "Extras",
+    "description": "Curso intensivo de arquitecturas modernas en TypeScript y PostgreSQL.",
+    "color": "#10b981",
+    "notificationsEnabled": false,
+    "schedules": [
+      {
+        "id": "77777777-7777-4777-8777-777777777777",
+        "dayOfWeek": "Martes",
+        "startTime": "18:30",
+        "endTime": "21:30"
+      },
+      {
+        "id": "88888888-8888-4888-8888-888888888888",
+        "dayOfWeek": "Jueves",
+        "startTime": "18:30",
+        "endTime": "21:30"
+      }
+    ],
+    "resources": [
+      {
+        "id": "99999999-9999-4999-8999-999999999999",
+        "name": "Documentación Oficial React",
+        "url": "https://react.dev"
+      },
+      {
+        "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "name": "Sala de Zoom Clases en Vivo",
+        "url": "https://zoom.us/j/1234567890"
+      }
+    ],
+    "tasks": [
+      {
+        "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        "title": "Implementar endpoints de autenticación",
+        "completed": true
+      },
+      {
+        "id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+        "title": "Configurar despliegue continuo en Vercel",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "d3a1b076-4e61-4c1b-7711-5a83080b8700",
+    "title": "Inglés Técnico para Programadores",
+    "category": "Otros",
+    "description": "Práctica de comunicación técnica, code reviews y entrevistas en inglés.",
+    "color": "#8b5cf6",
+    "notificationsEnabled": false,
+    "schedules": [
+      {
+        "id": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+        "dayOfWeek": "Viernes",
+        "startTime": "10:00",
+        "endTime": "12:00"
+      }
+    ],
+    "resources": [
+      {
+        "id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+        "name": "Glosario de Términos de Ingeniería",
+        "url": "https://techterms.com"
+      }
+    ],
+    "tasks": [
+      {
+        "id": "ffffffff-ffff-4fff-8fff-ffffffffffff",
+        "title": "Escribir resumen del sprint en inglés",
+        "completed": false
+      }
+    ]
+  }
+]

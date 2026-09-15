@@ -2,18 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDraggable } from '@dnd-kit/core';
 import { ExternalLink, Clock, CheckCircle2 } from 'lucide-react';
-import type { CourseResource, CourseTask } from '../types';
+import type { Activity } from '../types';
 
 interface ActivityCardProps {
-  activity: {
-    id: string;
-    courseId: string;
-    title: string;
-    resources: CourseResource[];
-    tasks: CourseTask[];
-    time: string;
-    color: string;
-  };
+  activity: Activity;
 }
 
 export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
@@ -32,7 +24,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
     pointerEvents: isDragging ? 'none' : 'auto',
   };
 
-  const handleCardClick = (_e: React.MouseEvent) => {
+  const handleCardClick = () => {
     // Only navigate if we're not dragging
     if (!isDragging) {
       navigate(`/course/${activity.courseId}`);

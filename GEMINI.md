@@ -43,6 +43,16 @@ To start both the frontend and the backend server:
 1. Start backend: `npm run server`
 2. Start frontend: `npm run dev`
 
+### Testing
+To run the automated tests:
+```bash
+npm run test
+```
+To run tests in watch mode during development:
+```bash
+npm run test:watch
+```
+
 ### Build
 To create a production-ready build:
 ```bash

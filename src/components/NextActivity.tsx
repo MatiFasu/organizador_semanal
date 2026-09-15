@@ -1,66 +1,79 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useCourseData } from '../hooks/useCourseData';
 import { DAYS_OF_WEEK } from '../types';
+import type { Course, CourseResource, CourseTask } from '../types';
 import { Clock, ExternalLink, Play, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+type UpcomingActivity = Course & {
+  startTime: string;
+};
+
 export const NextActivity: React.FC = () => {
   const { courses } = useCourseData();
-  const [next, setNext] = useState<any>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const sentNotificationsRef = useRef<Set<string>>(new Set());
+
+  const sendWhatsApp = useCallback((course: Course, time: string) => {
+    if (!course.phoneNumber) return;
+    const cleanPhone = course.phoneNumber.replace(/\D/g, '');
+    const message = encodeURIComponent(
+      `¡Hola! Recordatorio de Weekly Flow: Tu curso "${course.title}" comienza en 5 minutos (${time} hs).\n\nEnlaces rápidos:\n${(course.resources || []).map((r: CourseResource) => `- ${r.name}: ${r.url}`).join('\n')}`
+    );
+    const wpUrl = `https://wa.me/${cleanPhone}?text=${message}`;
+    
+    window.open(wpUrl, '_blank', 'noopener,noreferrer');
+  }, []);
+
+  const checkAndNotify = useCallback((now: Date) => {
+    const todayIndex = now.getDay();
+    const todayName = DAYS_OF_WEEK[(todayIndex + 6) % 7];
+    const currentH = now.getHours();
+    const currentM = now.getMinutes();
+
+    courses.forEach((course: Course) => {
+      if (course.notificationsEnabled && course.phoneNumber) {
+        (course.schedules || []).forEach((schedule) => {
+          if (schedule.dayOfWeek === todayName) {
+            const [schedH, schedM] = schedule.startTime.split(':').map(Number);
+            if (isNaN(schedH) || isNaN(schedM)) return;
+
+            const schedTotalMinutes = schedH * 60 + schedM;
+            const currentTotalMinutes = currentH * 60 + currentM;
+
+            // Check if it's 5 minutes before schedule
+            if (schedTotalMinutes - currentTotalMinutes === 5) {
+              const notificationKey = `${course.id}-${schedule.id}-${now.toDateString()}`;
+              if (!sentNotificationsRef.current.has(notificationKey)) {
+                sentNotificationsRef.current.add(notificationKey);
+                sendWhatsApp(course, schedule.startTime);
+              }
+            }
+          }
+        });
+      }
+    });
+  }, [courses, sendWhatsApp]);
 
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
       setCurrentTime(now);
       checkAndNotify(now);
-    }, 60000);
+    }, 15000);
     return () => clearInterval(timer);
-  }, [courses]);
+  }, [checkAndNotify]);
 
-  const checkAndNotify = (now: Date) => {
-    const todayIndex = now.getDay();
-    const todayName = DAYS_OF_WEEK[(todayIndex + 6) % 7];
-    const currentH = now.getHours();
-    const currentM = now.getMinutes();
-
-    courses.forEach(course => {
-      if (course.notificationsEnabled && course.phoneNumber) {
-        course.schedules.forEach(schedule => {
-          if (schedule.dayOfWeek === todayName) {
-            const [schedH, schedM] = schedule.startTime.split(':').map(Number);
-            
-            // Check if it's exactly 5 minutes before
-            const schedTotalMinutes = schedH * 60 + schedM;
-            const currentTotalMinutes = currentH * 60 + currentM;
-
-            if (schedTotalMinutes - currentTotalMinutes === 5) {
-              sendWhatsApp(course, schedule.startTime);
-            }
-          }
-        });
-      }
-    });
-  };
-
-  const sendWhatsApp = (course: any, time: string) => {
-    const message = `¡Hola! Recordatorio de Weekly Flow: Tu curso "${course.title}" comienza en 5 minutos (${time} hs).%0A%0AEnlaces rápidos:%0A${course.resources.map((r: any) => `- ${r.name}: ${r.url}`).join('%0A')}`;
-    const wpUrl = `https://wa.me/${course.phoneNumber}?text=${message}`;
-    
-    // We open it in a new tab. In a PWA or Mobile, this triggers the app.
-    window.open(wpUrl, '_blank');
-  };
-
-  useEffect(() => {
+  const next = useMemo<UpcomingActivity | null>(() => {
     const todayIndex = currentTime.getDay();
     const todayName = DAYS_OF_WEEK[(todayIndex + 6) % 7];
     const currentHM = `${currentTime.getHours().toString().padStart(2, '0')}:${currentTime.getMinutes().toString().padStart(2, '0')}`;
 
-    let upcoming: any[] = [];
+    const upcoming: UpcomingActivity[] = [];
 
-    courses.forEach(course => {
-      course.schedules.forEach(schedule => {
-        if (schedule.dayOfWeek === todayName && schedule.startTime > currentHM) {
+    courses.forEach((course) => {
+      (course.schedules || []).forEach((schedule) => {
+        if (schedule.dayOfWeek === todayName && schedule.startTime >= currentHM) {
           upcoming.push({
             ...course,
             startTime: schedule.startTime,
@@ -70,27 +83,31 @@ export const NextActivity: React.FC = () => {
     });
 
     upcoming.sort((a, b) => a.startTime.localeCompare(b.startTime));
-    setNext(upcoming[0] || null);
+    return upcoming[0] || null;
   }, [courses, currentTime]);
 
   if (!next) return null;
 
-  const pendingTasks = next.tasks.filter((t: any) => !t.completed).length;
+  const pendingTasks = (next.tasks || []).filter((t: CourseTask) => !t.completed).length;
 
   return (
     <AnimatePresence>
       <motion.div 
-        initial={{ height: 0, opacity: 0 }}
-        animate={{ height: 'auto', opacity: 1 }}
-        exit={{ height: 0, opacity: 0 }}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.3 }}
         className="next-activity-container"
       >
         <div className="next-activity-card">
-          <div className="next-badge">PRÓXIMA ACTIVIDAD</div>
+          <div className="next-badge-row">
+            <span className="next-badge">PRÓXIMA ACTIVIDAD</span>
+          </div>
+
           <div className="next-content">
             <div className="next-main-info">
-              <div className="next-icon-wrapper" style={{ backgroundColor: next.color }}>
-                <Play fill="white" color="white" size={20} />
+              <div className="next-icon-wrapper" style={{ backgroundColor: next.color || '#3b82f6' }}>
+                <Play fill="white" color="white" size={22} />
               </div>
               <div>
                 <h2>{next.title}</h2>
@@ -102,7 +119,7 @@ export const NextActivity: React.FC = () => {
                   {pendingTasks > 0 && (
                     <div className="next-tasks-badge">
                       <CheckCircle2 size={14} />
-                      <span>{pendingTasks} tareas pendientes</span>
+                      <span>{pendingTasks} pendientes</span>
                     </div>
                   )}
                 </div>
@@ -110,11 +127,12 @@ export const NextActivity: React.FC = () => {
             </div>
             
             <div className="next-actions">
-              {next.resources.map((res: any) => (
+              {(next.resources || []).map((res: CourseResource) => (
                 <button 
                   key={res.id} 
+                  type="button"
                   className="next-resource-btn"
-                  onClick={() => window.open(res.url, '_blank')}
+                  onClick={() => window.open(res.url, '_blank', 'noopener,noreferrer')}
                 >
                   <ExternalLink size={16} />
                   <span>{res.name}</span>
@@ -127,7 +145,6 @@ export const NextActivity: React.FC = () => {
         <style>{`
           .next-activity-container {
             margin-bottom: 2rem;
-            overflow: hidden;
           }
 
           .next-activity-card {
@@ -135,21 +152,29 @@ export const NextActivity: React.FC = () => {
             color: white;
             padding: 1.5rem;
             border-radius: 20px;
-            position: relative;
             box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+          }
+
+          .next-badge-row {
+            display: flex;
+            align-items: center;
           }
 
           .next-badge {
-            position: absolute;
-            top: -10px;
-            left: 20px;
-            background: var(--primary);
+            background: var(--primary, #3b82f6);
             color: white;
-            padding: 4px 12px;
+            padding: 4px 14px;
             border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 900;
+            font-size: 0.75rem;
+            font-weight: 800;
             letter-spacing: 0.05em;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            display: inline-flex;
+            align-items: center;
           }
 
           .next-content {
@@ -170,24 +195,26 @@ export const NextActivity: React.FC = () => {
           .next-main-info {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 1.25rem;
           }
 
           .next-icon-wrapper {
-            width: 56px;
-            height: 56px;
+            width: 52px;
+            height: 52px;
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            flex-shrink: 0;
           }
 
           .next-main-info h2 {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             margin: 0;
             font-weight: 800;
             letter-spacing: -0.02em;
+            color: #ffffff;
           }
 
           .next-meta {
@@ -195,6 +222,7 @@ export const NextActivity: React.FC = () => {
             align-items: center;
             gap: 15px;
             margin-top: 6px;
+            flex-wrap: wrap;
           }
 
           .next-time {
@@ -213,7 +241,7 @@ export const NextActivity: React.FC = () => {
             color: #10b981;
             font-size: 0.85rem;
             font-weight: 700;
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(16, 185, 129, 0.15);
             padding: 2px 10px;
             border-radius: 10px;
           }
@@ -237,11 +265,12 @@ export const NextActivity: React.FC = () => {
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.2s;
+            cursor: pointer;
           }
 
           .next-resource-btn:hover {
             background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
           }
         `}</style>
